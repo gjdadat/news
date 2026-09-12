@@ -2,15 +2,9 @@ import { join } from 'node:path';
 import { BrowserWindow, shell } from 'electron';
 
 let mainWindow: BrowserWindow | null = null;
-let quitting = false;
 
 export function getMainWindow(): BrowserWindow | null {
   return mainWindow;
-}
-
-/** 트레이 메뉴의 종료를 눌렀을 때만 실제로 앱을 끝낸다. */
-export function markQuitting(): void {
-  quitting = true;
 }
 
 export function createMainWindow(): BrowserWindow {
@@ -46,14 +40,6 @@ export function createMainWindow(): BrowserWindow {
   } else {
     void window.loadFile(join(__dirname, '../renderer/index.html'));
   }
-
-  // 창을 닫아도 앱은 트레이에 남아 다음 아침 조사를 준비한다.
-  window.on('close', (event) => {
-    if (!quitting) {
-      event.preventDefault();
-      window.hide();
-    }
-  });
 
   window.on('closed', () => {
     mainWindow = null;

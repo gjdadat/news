@@ -25,6 +25,6 @@ if (!app.requestSingleInstanceLock()) {
     app.on('activate', () => showMainWindow());
   });
 
-  // 창을 모두 닫아도 트레이에 남아 다음 아침 조사를 기다린다.
-  app.on('window-all-closed', () => {});
+  // 창을 닫으면 앱이 끝난다. 다음 아침 조사는 로그인 항목으로 다시 시작되면서 수행된다.
+  app.on('window-all-closed', () => app.quit());
 }

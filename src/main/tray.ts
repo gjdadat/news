@@ -1,6 +1,6 @@
 import { app, Menu, Tray, nativeImage } from 'electron';
 import trayIconPath from '../../resources/tray.png?asset';
-import { markQuitting, showMainWindow } from './window';
+import { showMainWindow } from './window';
 
 let tray: Tray | null = null;
 
@@ -12,13 +12,7 @@ export function createTray(): Tray {
     Menu.buildFromTemplate([
       { label: '브리핑 열기', click: () => showMainWindow() },
       { type: 'separator' },
-      {
-        label: '종료',
-        click: () => {
-          markQuitting();
-          app.quit();
-        },
-      },
+      { label: '종료', click: () => app.quit() },
     ]),
   );
   tray.on('click', () => showMainWindow());
