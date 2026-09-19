@@ -1,5 +1,5 @@
-import { app, ipcMain } from 'electron';
-import { IpcChannel, type AppInfo } from '@shared/ipc';
+import { app } from 'electron';
+import { registerIpcHandlers } from './ipc';
 import { createTray } from './tray';
 import { createMainWindow, showMainWindow } from './window';
 
@@ -10,15 +10,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on('second-instance', () => showMainWindow());
 
   void app.whenReady().then(() => {
-    ipcMain.handle(
-      IpcChannel.getAppInfo,
-      (): AppInfo => ({
-        name: '뉴스 브리핑',
-        version: app.getVersion(),
-        platform: process.platform,
-      }),
-    );
-
+    registerIpcHandlers();
     createTray();
     createMainWindow();
 
