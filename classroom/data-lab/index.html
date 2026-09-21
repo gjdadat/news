@@ -1,0 +1,1308 @@
+<title>우리 반 데이터 실험실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#f4f6f3; --surface:#ffffff; --surface-2:#eef1ed;
+  --ink:#151a18; --ink-2:#4f5a56; --ink-3:#7f8b86;
+  --line:#dde2dd; --line-strong:#c2cbc5;
+  --accent:#1f6f5c; --accent-2:#155444; --accent-soft:#e1efe9; --on-accent:#ffffff;
+  --warn:#9a6a00; --warn-mark:#eda100; --warn-soft:#fbf1d8;
+  --danger:#b03434; --danger-mark:#d64545; --danger-soft:#fae6e4;
+  --ok:#14805c; --ok-soft:#dff2ea;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --grid:rgba(31,111,92,.075);
+  --shadow:0 1px 0 rgba(21,26,24,.04), 0 6px 18px -14px rgba(21,26,24,.5);
+  --f-disp:"Hahmlet",Georgia,"Noto Serif KR",serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#131816; --surface:#1b2220; --surface-2:#232b28;
+    --ink:#eef3f0; --ink-2:#b2bdb8; --ink-3:#8a9691;
+    --line:#2d3633; --line-strong:#3e4844;
+    --accent:#4fb99a; --accent-2:#6fcdb1; --accent-soft:#1c322c; --on-accent:#0b1613;
+    --warn:#e0a92e; --warn-mark:#c98500; --warn-soft:#312813;
+    --danger:#e66767; --danger-mark:#e34948; --danger-soft:#33201f;
+    --ok:#3fbd93; --ok-soft:#163029;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+    --grid:rgba(120,200,180,.06);
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 22px -16px #000;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131816; --surface:#1b2220; --surface-2:#232b28;
+  --ink:#eef3f0; --ink-2:#b2bdb8; --ink-3:#8a9691;
+  --line:#2d3633; --line-strong:#3e4844;
+  --accent:#4fb99a; --accent-2:#6fcdb1; --accent-soft:#1c322c; --on-accent:#0b1613;
+  --warn:#e0a92e; --warn-mark:#c98500; --warn-soft:#312813;
+  --danger:#e66767; --danger-mark:#e34948; --danger-soft:#33201f;
+  --ok:#3fbd93; --ok-soft:#163029;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+  --grid:rgba(120,200,180,.06);
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 22px -16px #000;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:15px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--f-disp); font-weight:700; text-wrap:balance; margin:0; letter-spacing:-.01em}
+p{margin:0}
+button{font-family:inherit; font-size:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:30;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{max-width:1080px; margin:0 auto; padding:10px 16px; display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
+.brand{display:flex; align-items:baseline; gap:9px; margin-right:auto}
+.brand b{font-family:var(--f-disp); font-size:17px; font-weight:700; letter-spacing:-.015em}
+.brand span{font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3); letter-spacing:.06em}
+.rail{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px}
+.rail::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto; display:flex; align-items:center; gap:7px;
+  border:1px solid var(--line-strong); background:var(--surface);
+  padding:5px 11px 5px 7px; border-radius:999px; cursor:pointer;
+  font-size:13px; white-space:nowrap; transition:border-color .15s, background .15s;
+}
+.chip .n{font-family:var(--f-mono); font-size:11px; width:19px; height:19px; border-radius:50%;
+  display:grid; place-items:center; background:var(--surface-2); color:var(--ink-2)}
+.chip[aria-current="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.chip[aria-current="true"] .n{background:color-mix(in srgb, var(--on-accent) 22%, transparent); color:var(--on-accent)}
+.chip[data-done="1"] .n{background:var(--ok-soft); color:var(--ok)}
+.chip[disabled]{opacity:.42; cursor:not-allowed}
+.bar{height:3px; background:var(--surface-2); border-radius:2px; overflow:hidden; width:100%; max-width:1080px; margin:0 auto}
+.bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .35s ease}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1080px; margin:0 auto; padding-inline:16px; padding-block:26px 56px}
+.step{display:block}
+.step[hidden]{display:none!important}
+.eyebrow{font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; color:var(--accent);
+  text-transform:uppercase; margin-bottom:6px}
+.h-lead{font-size:clamp(23px,4.4vw,31px); line-height:1.25}
+.lead{color:var(--ink-2); margin-top:9px; max-width:62ch}
+.sheet{
+  margin-top:22px; background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:26px 26px;
+}
+.sheet > * {background:transparent}
+.pad{padding:18px}
+@media(min-width:720px){.pad{padding:24px}}
+.sec-h{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px}
+.sec-h h3{font-size:17px}
+.tag{font-family:var(--f-mono); font-size:10.5px; letter-spacing:.08em; color:var(--ink-3);
+  border:1px solid var(--line-strong); border-radius:3px; padding:1px 6px}
+.hint{color:var(--ink-2); font-size:13.5px; margin-top:4px}
+
+/* numbered task list */
+.plan{list-style:none; margin:0; padding:0; counter-reset:t}
+.plan > li{padding:18px; border-top:1px solid var(--line)}
+.plan > li:first-child{border-top:0}
+.plan-h{display:flex; gap:10px; align-items:baseline}
+.plan-h .num{font-family:var(--f-mono); font-size:12px; color:var(--on-accent); background:var(--accent);
+  width:22px; height:22px; border-radius:5px; display:grid; place-items:center; flex:0 0 auto; transform:translateY(2px)}
+.plan-h h3{font-size:16px}
+.plan-h .num[data-done="1"]{background:var(--ok)}
+
+/* choices */
+.opts{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.opt{
+  border:1px solid var(--line-strong); background:var(--surface); border-radius:8px;
+  padding:9px 13px; cursor:pointer; text-align:left; line-height:1.45;
+  transition:border-color .15s, background .15s, box-shadow .15s;
+}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent)}
+.opt small{display:block; color:var(--ink-3); font-size:12.5px}
+.opt-q{flex:1 1 250px}
+.fb{margin-top:11px; font-size:13.5px; display:flex; gap:8px; align-items:flex-start; padding:9px 11px; border-radius:7px}
+.fb[hidden]{display:none}
+.fb b{font-family:var(--f-mono); font-size:11px; letter-spacing:.06em; flex:0 0 auto; padding-top:2px}
+.fb.good{background:var(--ok-soft); color:var(--ok)}
+.fb.warn{background:var(--warn-soft); color:var(--warn)}
+.fb.bad{background:var(--danger-soft); color:var(--danger)}
+.fb.info{background:var(--surface-2); color:var(--ink-2)}
+
+/* buttons */
+.btn{
+  border:1px solid var(--accent); background:var(--accent); color:var(--on-accent);
+  border-radius:8px; padding:9px 16px; cursor:pointer; font-weight:600; font-size:14px;
+}
+.btn:hover{background:var(--accent-2); border-color:var(--accent-2)}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line-strong); font-weight:500}
+.btn.ghost:hover{border-color:var(--accent); color:var(--accent); background:transparent}
+.btn.sm{padding:6px 11px; font-size:13px; border-radius:7px}
+.actions{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:20px}
+.actions .note{color:var(--ink-3); font-size:13px}
+
+/* tables */
+.tblbox{overflow-x:auto; border:1px solid var(--line); border-radius:9px; background:var(--surface); margin-top:14px}
+.tblbox.tall{max-height:360px; overflow-y:auto}
+table{border-collapse:collapse; width:100%; font-size:13px}
+th,td{padding:6px 10px; text-align:right; white-space:nowrap; border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,th.l,td.l{text-align:left}
+thead th{position:sticky; top:0; background:var(--surface-2); color:var(--ink-2); font-weight:600;
+  font-size:11.5px; letter-spacing:.03em; z-index:1}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+td.flag-miss{background:var(--surface-2); color:var(--ink-3); font-style:italic}
+td.flag-out{background:var(--danger-soft); color:var(--danger); font-weight:600}
+td.flag-fmt{background:var(--warn-soft); color:var(--warn); font-weight:600}
+tr.flag-dup td{background:var(--danger-soft)}
+tr.dim td{opacity:.42; text-decoration:line-through}
+
+/* issue log */
+.sum{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.sum span{font-size:12.5px; border:1px solid var(--line-strong); border-radius:999px; padding:3px 11px;
+  display:inline-flex; gap:7px; align-items:center}
+.sum span i{width:8px; height:8px; border-radius:50%; display:block}
+.log{list-style:none; margin:16px 0 0; padding:0; border-top:1px solid var(--line)}
+.log li{padding:14px 2px; border-bottom:1px solid var(--line); display:grid; gap:10px}
+.log-h{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:baseline}
+.code{font-family:var(--f-mono); font-size:11px; color:var(--ink-3); letter-spacing:.05em}
+.kind{font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:4px}
+.k-miss{background:var(--surface-2); color:var(--ink-2)}
+.k-out{background:var(--danger-soft); color:var(--danger)}
+.k-fmt{background:var(--warn-soft); color:var(--warn)}
+.k-dup{background:var(--accent-soft); color:var(--accent)}
+.log-h .what{font-weight:600}
+.log-h .where{color:var(--ink-2); font-size:13.5px}
+.log .val{font-family:var(--f-mono); font-size:13px; background:var(--surface-2); padding:1px 7px; border-radius:4px}
+.log .desc{font-size:13.5px; color:var(--ink-2)}
+.done-dot{width:9px;height:9px;border-radius:50%;background:var(--line-strong);flex:0 0 auto;transform:translateY(-1px)}
+.done-dot[data-ok="1"]{background:var(--ok)}
+
+/* viz */
+.controls{display:grid; gap:14px; grid-template-columns:1fr; margin-top:6px}
+@media(min-width:680px){.controls{grid-template-columns:repeat(3,1fr)}}
+.field{display:grid; gap:6px}
+.field label{font-family:var(--f-mono); font-size:11px; letter-spacing:.08em; color:var(--ink-3); text-transform:uppercase}
+select{
+  font-family:inherit; font-size:14px; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line-strong); border-radius:8px; padding:8px 10px; width:100%;
+}
+.charts{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+.ctype{border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; padding:7px 13px;
+  cursor:pointer; font-size:13.5px; display:flex; align-items:center; gap:8px}
+.ctype[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:600}
+.ctype .m{font-family:var(--f-mono); font-size:11px; font-weight:600}
+.plot{position:relative; margin-top:16px; border:1px solid var(--line); border-radius:10px;
+  background:var(--surface); padding:12px}
+.plot svg{display:block; width:100%; height:auto}
+.plot .empty{padding:44px 16px; text-align:center; color:var(--ink-3); font-size:14px}
+.chart-title{font-family:var(--f-disp); font-size:15.5px; font-weight:700; padding:2px 4px 10px}
+text.ax{font-family:var(--f-mono); font-size:11px; fill:var(--ink-3)}
+text.val{font-family:var(--f-mono); font-size:11.5px; font-weight:600; fill:var(--ink-2)}
+text.axl{font-family:var(--f-body); font-size:11.5px; fill:var(--ink-3)}
+text.lg{font-family:var(--f-body); font-size:12.5px; fill:var(--ink-2)}
+.tip{position:fixed; z-index:60; pointer-events:none; background:var(--ink); color:var(--paper);
+  font-family:var(--f-mono); font-size:12px; padding:5px 9px; border-radius:6px; transform:translate(-50%,-140%);
+  white-space:nowrap; box-shadow:0 4px 14px -6px rgba(0,0,0,.5)}
+.tip[hidden]{display:none}
+
+/* stats + quiz */
+.stat-note{margin-top:12px; font-size:13.5px; color:var(--ink-2); background:var(--surface-2);
+  border-radius:8px; padding:11px 13px}
+.quiz{list-style:none; margin:14px 0 0; padding:0; display:grid; gap:14px}
+.quiz li{border:1px solid var(--line); border-radius:10px; padding:14px; background:var(--surface)}
+.quiz .qq{font-weight:600}
+.quiz .opts{margin-top:10px}
+.quiz .opt{flex:1 1 150px}
+.quiz .opt[data-state="right"]{border-color:var(--ok); background:var(--ok-soft); color:var(--ok); font-weight:600}
+.quiz .opt[data-state="wrong"]{border-color:var(--danger); background:var(--danger-soft); color:var(--danger)}
+textarea{
+  width:100%; min-height:130px; font-family:inherit; font-size:14.5px; line-height:1.7; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line-strong); border-radius:9px; padding:12px; resize:vertical;
+}
+.frames{display:flex; flex-wrap:wrap; gap:7px; margin-top:10px}
+.frame{border:1px dashed var(--line-strong); background:transparent; border-radius:7px; padding:6px 11px;
+  cursor:pointer; font-size:12.5px; color:var(--ink-2)}
+.frame:hover{border-color:var(--accent); color:var(--accent); border-style:solid}
+.checks{list-style:none; margin:16px 0 0; padding:0; display:grid; gap:8px}
+.checks label{display:flex; gap:9px; align-items:flex-start; font-size:14px; cursor:pointer}
+.checks input{margin-top:4px; accent-color:var(--accent); width:16px; height:16px}
+.report{margin-top:18px; border:1px solid var(--line-strong); border-radius:10px; background:var(--surface); padding:16px}
+.report h4{font-family:var(--f-disp); font-size:16px; margin:0 0 10px}
+.report pre{font-family:var(--f-mono); font-size:12.5px; line-height:1.85; white-space:pre-wrap;
+  word-break:break-word; margin:0; color:var(--ink-2)}
+
+/* footer */
+.foot{border-top:1px solid var(--line); margin-top:44px; padding-top:20px}
+details summary{cursor:pointer; font-family:var(--f-mono); font-size:12px; letter-spacing:.08em;
+  color:var(--ink-3); text-transform:uppercase}
+details[open] summary{color:var(--accent)}
+.teach{margin-top:14px; display:grid; gap:16px}
+@media(min-width:760px){.teach{grid-template-columns:repeat(2,1fr)}}
+.teach section h4{font-family:var(--f-disp); font-size:15px; margin:0 0 6px}
+.teach ul{margin:0; padding-left:18px; color:var(--ink-2); font-size:13.5px; line-height:1.8}
+.byline{margin-top:22px; font-size:12px; color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><b>우리 반 데이터 실험실</b><span>중1 정보 · 데이터</span></div>
+    <nav class="rail" id="rail" aria-label="학습 단계"></nav>
+  </div>
+  <div class="bar"><i id="progbar"></i></div>
+</div>
+
+<main class="wrap">
+  <!-- ============ STEP 1 ============ -->
+  <section class="step" id="step1">
+    <p class="eyebrow">단계 01 · 수집</p>
+    <h2 class="h-lead">궁금한 것을 정하고 데이터를 모은다</h2>
+    <p class="lead">데이터 분석은 컴퓨터를 켜는 일에서 시작하지 않습니다. <b>무엇이 궁금한지</b> 정하고, <b>누구에게 어떻게 물을지</b> 정하는 데서 시작합니다. 계획 없이 모은 데이터는 나중에 쓸 수 없어요.</p>
+
+    <div class="sheet">
+      <ol class="plan">
+        <li>
+          <div class="plan-h"><span class="num" id="num-q">1</span><h3>조사 질문 정하기</h3></div>
+          <p class="hint">한 문장으로, 데이터로 답할 수 있게 써야 합니다. "우리 반은 좋은 반일까?"는 데이터로 답하기 어려워요.</p>
+          <div class="opts" id="qOpts"></div>
+          <p class="fb info" id="fbQ" hidden></p>
+        </li>
+        <li>
+          <div class="plan-h"><span class="num" id="num-m">2</span><h3>조사 방법 정하기</h3></div>
+          <p class="hint">조사 대상 전체에게 묻는 것이 <b>전수조사</b>, 일부만 뽑아 묻는 것이 <b>표본조사</b>입니다.</p>
+          <div class="opts" id="mOpts"></div>
+          <p class="fb info" id="fbM" hidden></p>
+        </li>
+        <li>
+          <div class="plan-h"><span class="num" id="num-p">3</span><h3>개인정보 지키기</h3></div>
+          <p class="hint">설문지에는 이름 칸이 있습니다. 하지만 "우리 반 수면시간"을 알아보는 데 이름이 꼭 필요할까요? 누구인지 알아볼 수 있는 정보는 분석에 필요 없다면 지우거나 번호로 바꿉니다.</p>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn sm" id="btnAnon">이름을 번호로 바꾸기</button>
+            <span class="note" id="anonNote">아직 이름이 그대로 들어 있습니다.</span>
+          </div>
+          <p class="fb good" id="fbP" hidden></p>
+        </li>
+        <li>
+          <div class="plan-h"><span class="num" id="num-c">4</span><h3>설문 결과 받기</h3></div>
+          <p class="hint">1학년 3반 설문 응답과 학급 일지 기록을 불러옵니다. 아래 표는 <b>손대지 않은 원자료</b>입니다.</p>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn sm" id="btnLoad">설문 응답 29건 불러오기</button>
+            <span class="note" id="loadNote">미리보기 6행만 보이는 중</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="sheet pad" style="margin-top:18px">
+      <div class="sec-h"><h3>원자료 · 1학년 3반 설문</h3><span class="tag" id="rawCount">미리보기</span></div>
+      <p class="hint">데이터 한 줄을 <b>행(레코드)</b>, 한 칸을 <b>필드(속성)</b>라고 부릅니다.</p>
+      <div class="tblbox tall" id="rawTbl"></div>
+      <div class="actions">
+        <button class="btn" id="go2" disabled>정제 단계로 →</button>
+        <span class="note" id="go2Note">1~4번을 모두 끝내면 다음 단계가 열립니다.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section class="step" id="step2" hidden>
+    <p class="eyebrow">단계 02 · 정제</p>
+    <h2 class="h-lead">잘못된 데이터를 골라내고 고친다</h2>
+    <p class="lead">설문을 받으면 언제나 빠진 값, 말이 안 되는 값, 제각각인 표기, 똑같이 두 번 들어온 응답이 섞입니다. 이걸 그냥 두고 그래프를 그리면 <b>그래프도 결론도 틀어집니다.</b> 아래 10건을 하나씩 처리하세요.</p>
+
+    <div class="sheet pad">
+      <div class="sec-h"><h3>정제 작업 일지</h3><span class="tag" id="fixCount">0 / 10 처리</span></div>
+      <div class="sum">
+        <span><i style="background:var(--ink-3)"></i>결측치 4건 — 값이 비어 있음</span>
+        <span><i style="background:var(--danger-mark)"></i>이상치 3건 — 있을 수 없는 값</span>
+        <span><i style="background:var(--warn-mark)"></i>표기 불일치 2건 — 같은 뜻, 다른 표기</span>
+        <span><i style="background:var(--s1)"></i>중복 1건 — 같은 응답이 두 번</span>
+      </div>
+      <ul class="log" id="issueLog"></ul>
+      <div class="actions">
+        <button class="btn" id="go3" disabled>시각화 단계로 →</button>
+        <button class="btn ghost sm" id="btnShowClean">정제된 표 보기</button>
+        <span class="note" id="go3Note">10건을 모두 해결하면 다음 단계가 열립니다.</span>
+      </div>
+      <div id="cleanTbl" hidden></div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section class="step" id="step3" hidden>
+    <p class="eyebrow">단계 03 · 시각화</p>
+    <h2 class="h-lead">데이터에 알맞은 그래프를 고른다</h2>
+    <p class="lead">그래프는 예뻐 보이려고 그리는 게 아니라 <b>읽으려고</b> 그립니다. 자료의 종류(범주형·수치형·시간)에 따라 알맞은 그래프가 다릅니다. 일부러 안 맞는 그래프도 그려 보고, 왜 읽기 어려운지 직접 확인하세요.</p>
+
+    <div class="sheet pad">
+      <div class="controls">
+        <div class="field"><label for="selDs">데이터</label>
+          <select id="selDs">
+            <option value="survey">1학년 3반 설문 (학생별)</option>
+            <option value="late">학급 일지 (월별 지각 학생 수)</option>
+          </select></div>
+        <div class="field"><label for="selV1">가로축 · 기준</label><select id="selV1"></select></div>
+        <div class="field"><label for="selV2">세로축 · 값</label><select id="selV2"></select></div>
+      </div>
+      <div class="charts" id="charts"></div>
+      <p class="fb info" id="fbViz" hidden></p>
+      <div class="plot" id="plot"><div class="empty">그래프 종류를 고르면 여기에 그려집니다.</div></div>
+      <div class="actions">
+        <button class="btn ghost sm" id="btnTable">표로 보기</button>
+        <span class="note">색만으로 구분하지 않도록 표도 함께 제공합니다.</span>
+      </div>
+      <div id="vizTbl" hidden></div>
+      <div class="actions">
+        <button class="btn" id="go4" disabled>해석 단계로 →</button>
+        <span class="note" id="go4Note">알맞은 그래프(◎)를 두 가지 이상 그려 보면 다음 단계가 열립니다. <b id="okCount">0</b>/2</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4 ============ -->
+  <section class="step" id="step4" hidden>
+    <p class="eyebrow">단계 04 · 해석</p>
+    <h2 class="h-lead">숫자에서 문장을 만든다</h2>
+    <p class="lead">분석의 마지막은 <b>“그래서 무엇을 알게 되었는가”</b>입니다. 평균 하나만 보고 단정하지 말고, 여러 값을 함께 읽고 조사의 한계까지 밝혀야 좋은 결론입니다.</p>
+
+    <div class="sheet pad">
+      <div class="sec-h"><h3>요약값</h3><span class="tag">정제 후 자료 기준</span></div>
+      <div class="tblbox" id="statTbl"></div>
+      <p class="stat-note" id="statNote"></p>
+    </div>
+
+    <div class="sheet pad" style="margin-top:18px">
+      <div class="sec-h"><h3>그래프 읽기 확인</h3><span class="tag" id="quizScore">0 / 4</span></div>
+      <p class="hint">모두 여러분이 정제한 데이터에서 바로 계산한 값입니다.</p>
+      <ol class="quiz" id="quiz"></ol>
+    </div>
+
+    <div class="sheet pad" style="margin-top:18px">
+      <div class="sec-h"><h3>결론 쓰기</h3><span class="tag">조사 질문에 답하기</span></div>
+      <p class="hint" id="qEcho"></p>
+      <textarea id="concl" placeholder="그래프에서 읽은 사실 → 그래서 알게 된 것 → 이 조사의 한계 순서로 써 보세요."></textarea>
+      <div class="frames" id="frames"></div>
+      <ul class="checks">
+        <li><label><input type="checkbox" data-chk="fact"> 그래프에서 <b>직접 읽은 사실</b>(숫자)을 근거로 썼다.</label></li>
+        <li><label><input type="checkbox" data-chk="answer"> 처음에 정한 <b>조사 질문에 대한 답</b>이 들어 있다.</label></li>
+        <li><label><input type="checkbox" data-chk="limit"> 우리 반만 조사했다는 <b>한계</b>를 밝혔다.</label></li>
+      </ul>
+      <div class="actions">
+        <button class="btn" id="btnReport">활동 보고서 만들기</button>
+        <button class="btn ghost sm" id="btnCopy" hidden>보고서 복사</button>
+        <button class="btn ghost sm" id="btnReset">처음부터 다시</button>
+      </div>
+      <div class="report" id="report" hidden><h4>데이터 분석 활동 보고서</h4><pre id="reportBody"></pre></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <details>
+      <summary>교사용 메모 — 수업 운영 안내</summary>
+      <div class="teach">
+        <section>
+          <h4>성취기준 연계 (2022 개정 · 중학교 정보)</h4>
+          <ul>
+            <li>문제 해결에 필요한 데이터를 수집하고, 목적에 맞게 구조화한다.</li>
+            <li>데이터를 정제·분석하고 시각화하여 의미를 해석한다.</li>
+            <li>데이터 수집·활용 과정에서 개인정보 보호의 필요성을 안다.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>차시 운영 (2~3차시)</h4>
+          <ul>
+            <li><b>1차시</b> 단계 01~02 — 조사 계획, 개인정보, 정제 작업 일지 10건</li>
+            <li><b>2차시</b> 단계 03 — 자료 종류별 알맞은 그래프 고르기, 일부러 틀린 그래프 관찰</li>
+            <li><b>3차시</b> 단계 04 — 요약값 해석, 결론 쓰기, 보고서 제출</li>
+          </ul>
+        </section>
+        <section>
+          <h4>평가 포인트</h4>
+          <ul>
+            <li>정제 선택의 <b>이유</b>를 설명할 수 있는가 (정답 클릭이 아니라 근거)</li>
+            <li>자료 종류와 그래프 종류를 연결지을 수 있는가</li>
+            <li>평균·중앙값·최빈값을 상황에 맞게 골라 쓰는가</li>
+            <li>결론에 조사의 한계(표본 28명)를 밝혔는가</li>
+          </ul>
+        </section>
+        <section>
+          <h4>자주 나오는 오개념</h4>
+          <ul>
+            <li>"빈칸은 0이다" → 0은 <b>측정된 값</b>, 결측은 <b>값이 없는 것</b></li>
+            <li>"평균이 대푯값이다" → 이상치가 있으면 중앙값이 더 알맞음</li>
+            <li>"꺾은선이 더 멋있다" → 꺾은선은 <b>시간 순서</b>가 있을 때만</li>
+            <li>"원그래프로 평균 비교" → 원그래프는 전체를 100%로 나눌 때만</li>
+          </ul>
+        </section>
+      </div>
+      <p class="byline">진행 상황은 이 기기의 브라우저에만 저장됩니다. 다른 기기·다른 학생에게는 전달되지 않습니다.</p>
+    </details>
+  </div>
+</main>
+<div class="tip" id="tip" hidden></div>
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. 데이터
+   ============================================================ */
+const S=(no,name,gender,height,sleep,phone,lunch,commute)=>({no,name,gender,height,sleep,phone,lunch,commute});
+const RAW_SURVEY=[
+ S(1,'김서준','남',163,7,2.5,'돈가스','도보'),
+ S(2,'이하윤','여',158,8,1.5,'떡볶이','버스'),
+ S(3,'박도현','남자',171,6,4,'제육볶음','자전거'),
+ S(4,'최지우','여',155,7.5,3,'카레','도보'),
+ S(5,'정예준','남',168,6.5,5,'돈가스','버스'),
+ S(6,'강수아','여',161,8,2,'비빔밥','자가용'),
+ S(7,'조민준','남',null,7,3.5,'떡볶이','도보'),
+ S(8,'윤채원','여',157,9,1,'카레','걸어서'),
+ S(9,'장시우','남',1750,6,4.5,'돈가스','버스'),
+ S(10,'임하은','여',160,7,2,'제육볶음','자전거'),
+ S(11,'한지호','M',166,5.5,6,'떡볶이','버스'),
+ S(12,'오서연','여',153,8,1.5,'비빔밥','도보'),
+ S(13,'신건우','남',174,7,3,'돈가스','자가용'),
+ S(14,'권유진','여',159,25,2.5,'카레','버스'),
+ S(15,'황준서','남',165,6,3.5,'제육볶음','도보'),
+ S(16,'문지안','여',162,7.5,-2,'떡볶이','자전거'),
+ S(17,'배태윤','남',169,6.5,4,'돈가스','버스'),
+ S(18,'서나연','여',null,8,2,'비빔밥','도보'),
+ S(19,'남주원','남',167,7,3,'제육볶음','자가용'),
+ S(20,'유소율','여',156,8.5,1,'카레','도보'),
+ S(21,'홍지훈','남자',172,6,5.5,'떡볶이','버스'),
+ S(22,'곽예린','여',158,null,2.5,'돈가스','자전거'),
+ S(23,'노시윤','남',164,7,3,'비빔밥','도보'),
+ S(24,'전다은','여',160,7.5,2,'제육볶음','버스'),
+ S(25,'심우진','남',170,6.5,4,'돈가스','자가용'),
+ S(26,'구채은','여',154,9,1.5,'카레','도보'),
+ S(27,'표민재','남',166,7,3.5,'떡볶이','버스'),
+ S(28,'진수빈','여',163,8,2,'비빔밥','자전거'),
+ S(29,'김서준','남',163,7,2.5,'돈가스','도보')
+];
+const RAW_LATE=[{m:'3월',v:12},{m:'4월',v:9},{m:'5월',v:7},{m:'6월',v:null},{m:'7월',v:5},{m:'9월',v:4}];
+
+const VARS={
+ survey:{
+  gender :{label:'성별',            type:'cat', order:['남','여']},
+  lunch  :{label:'좋아하는 급식',    type:'cat', order:['돈가스','제육볶음','떡볶이','카레','비빔밥']},
+  commute:{label:'통학 수단',        type:'cat', order:['도보','자전거','버스','자가용']},
+  height :{label:'키',              type:'num', unit:'cm',   bin:5},
+  sleep  :{label:'수면 시간',        type:'num', unit:'시간', bin:1},
+  phone  :{label:'스마트폰 이용 시간',type:'num', unit:'시간', bin:1}
+ },
+ late:{
+  m:{label:'월',            type:'time'},
+  v:{label:'지각 학생 수',   type:'num', unit:'명', bin:2}
+ }
+};
+const COLS=[['no','번호'],['name','이름'],['gender','성별'],['height','키(cm)'],['sleep','수면(시간)'],['phone','스마트폰(시간)'],['lunch','좋아하는 급식'],['commute','통학 수단']];
+
+const QUESTIONS=[
+ {id:'sleep',  t:'우리 반 친구들은 잠을 충분히 잘까?', v:'sleep',  fb:'좋습니다. 수면 시간은 숫자로 답할 수 있는 <b>수치형 자료</b>예요. 평균과 분포를 함께 봐야 합니다.'},
+ {id:'phone',  t:'스마트폰을 오래 쓰는 친구는 잠이 부족할까?', v:'phone', fb:'두 수치형 자료의 <b>관계</b>를 보는 질문입니다. 이런 질문에는 산점도가 알맞아요.'},
+ {id:'lunch',  t:'우리 반이 가장 좋아하는 급식은 무엇일까?', v:'lunch', fb:'좋아하는 급식은 이름으로 나뉘는 <b>범주형 자료</b>입니다. 개수를 세어 비교합니다.'},
+ {id:'late',   t:'우리 반 지각은 줄어들고 있을까?', v:'late', fb:'시간에 따른 <b>변화</b>를 보는 질문이에요. 월별 기록이 필요하고, 꺾은선그래프가 알맞습니다.'}
+];
+const METHODS=[
+ {id:'all', t:'전수조사', d:'우리 반 28명 모두에게 묻는다', cls:'good',
+  fb:'알맞은 선택입니다. 조사 대상이 28명으로 적으니 전부 조사할 수 있어요. 전수조사는 빠뜨림이 없어 가장 정확합니다.'},
+ {id:'part',t:'표본조사', d:'반에서 5명만 뽑아 묻는다', cls:'warn',
+  fb:'표본조사는 대상이 아주 많을 때(전국 중학생 등) 쓰는 방법이에요. 28명은 전부 조사할 수 있으니 이번에는 전수조사가 더 알맞습니다. 5명만 뽑으면 <b>우연히 치우친 결과</b>가 나올 수 있어요.'}
+];
+
+/* ============================================================
+   2. 정제 과제
+   ============================================================ */
+const find=(rows,no)=>rows.find(r=>r.no===no);
+function meanOf(rows,key,ok){
+  const xs=rows.map(r=>r[key]).filter(v=>v!==null&&v!==undefined&&ok(v));
+  return xs.length? xs.reduce((a,b)=>a+b,0)/xs.length : 0;
+}
+const okH=v=>v>100&&v<220, okS=v=>v>=0&&v<=14, okP=v=>v>=0&&v<=16;
+const drop=(rows,no)=>{const i=rows.findIndex(r=>r.no===no); if(i>=0) rows.splice(i,1);};
+
+function missOpts(no,key,ok,unit){
+  return [
+   {label:'우리 반 평균값으로 채우기', verdict:'good',
+    note:'가장 많이 쓰는 방법입니다. 자료 수를 잃지 않으면서 전체 경향을 크게 흔들지 않아요. 다만 <b>실제 값은 아니라는 점</b>을 기억해야 합니다.',
+    apply:(rows)=>{const r=find(rows,no); if(r) r[key]=Math.round(meanOf(rows,key,ok)*10)/10;}},
+   {label:'이 학생의 응답을 통째로 빼기', verdict:'ok',
+    note:'이것도 맞는 방법이에요. 대신 조사 인원이 한 명 줄어듭니다. 빠진 칸이 많을 때 주로 씁니다.',
+    apply:(rows)=>drop(rows,no)},
+   {label:'0으로 채우기', verdict:'bad',
+    note:'안 됩니다. 0은 <b>"0이라고 측정된 값"</b>이고, 결측은 <b>"값이 없는 것"</b>이에요. 0을 넣으면 평균이 크게 낮아져 결과가 왜곡됩니다.',
+    apply:null}
+  ];
+}
+
+const ISSUES=[
+ {id:'m1', kind:'결측', cls:'miss', code:'M-01', where:'7번 학생 · 키', cur:'(빈칸)',
+  desc:'설문지에 키를 적지 않았습니다.', opts:missOpts(7,'height',okH,'cm')},
+ {id:'m2', kind:'결측', cls:'miss', code:'M-02', where:'18번 학생 · 키', cur:'(빈칸)',
+  desc:'설문지에 키를 적지 않았습니다.', opts:missOpts(18,'height',okH,'cm')},
+ {id:'m3', kind:'결측', cls:'miss', code:'M-03', where:'22번 학생 · 수면 시간', cur:'(빈칸)',
+  desc:'수면 시간 칸이 비어 있습니다.', opts:missOpts(22,'sleep',okS,'시간')},
+ {id:'o1', kind:'이상치', cls:'out', code:'O-01', where:'9번 학생 · 키', cur:'1750',
+  desc:'키가 1750cm입니다. 17.5m인 사람은 없습니다. 단위를 잘못 쓴 것 같아요.',
+  opts:[
+   {label:'175로 고치기 (mm를 cm로 잘못 적음)', verdict:'good',
+    note:'정확합니다. 이상치라고 무조건 지우지 않아요. <b>왜 그런 값이 나왔는지</b> 알 수 있으면 바로잡는 것이 가장 좋습니다.',
+    apply:(rows)=>{const r=find(rows,9); if(r) r.height=175;}},
+   {label:'빈칸으로 바꾼 뒤 평균으로 채우기', verdict:'ok',
+    note:'가능한 방법입니다. 다만 175라는 실제 값을 살릴 수 있는데 평균으로 덮어쓰는 건 조금 아깝습니다.',
+    apply:(rows)=>{const r=find(rows,9); if(r) r.height=Math.round(meanOf(rows,'height',okH)*10)/10;}},
+   {label:'그대로 두기', verdict:'bad',
+    note:'안 됩니다. 1750 하나 때문에 우리 반 평균 키가 약 218cm가 됩니다. 이상치 하나가 평균 전체를 망가뜨려요.',
+    apply:null}]},
+ {id:'o2', kind:'이상치', cls:'out', code:'O-02', where:'14번 학생 · 수면 시간', cur:'25',
+  desc:'하루 25시간을 잤다고 되어 있습니다. 하루는 24시간입니다.',
+  opts:[
+   {label:'잘못된 값이므로 빼고 평균으로 채우기', verdict:'good',
+    note:'맞습니다. 이번에는 원래 값이 2.5인지 5인지 알 수 없으므로 고칠 수 없어요. 알 수 없을 때는 결측으로 처리합니다.',
+    apply:(rows)=>{const r=find(rows,14); if(r) r.sleep=Math.round(meanOf(rows,'sleep',okS)*10)/10;}},
+   {label:'2.5로 고치기', verdict:'bad',
+    note:'마음대로 정하면 안 됩니다. 2.5시간인지 5시간인지 알 수 없어요. <b>추측으로 값을 만들어 내는 것</b>은 데이터 조작입니다.',
+    apply:null},
+   {label:'그대로 두기', verdict:'bad',
+    note:'안 됩니다. 있을 수 없는 값을 남겨 두면 평균 수면 시간이 실제보다 길게 나옵니다.',
+    apply:null}]},
+ {id:'o3', kind:'이상치', cls:'out', code:'O-03', where:'16번 학생 · 스마트폰 이용 시간', cur:'-2',
+  desc:'이용 시간이 -2시간입니다. 시간은 음수가 될 수 없습니다.',
+  opts:[
+   {label:'2로 고치기 (빼기 기호를 잘못 입력)', verdict:'good',
+    note:'좋습니다. 숫자 2 앞에 실수로 -가 붙은 경우예요. 입력 실수는 원래 값을 짐작할 수 있으므로 바로잡습니다.',
+    apply:(rows)=>{const r=find(rows,16); if(r) r.phone=2;}},
+   {label:'평균으로 채우기', verdict:'ok',
+    note:'가능하지만, 2라는 값을 충분히 짐작할 수 있으니 고쳐 쓰는 편이 낫습니다.',
+    apply:(rows)=>{const r=find(rows,16); if(r) r.phone=Math.round(meanOf(rows,'phone',okP)*10)/10;}},
+   {label:'그대로 두기', verdict:'bad',
+    note:'안 됩니다. 음수가 섞이면 평균이 낮아지고, 그래프에서는 막대가 축 아래로 내려갑니다.',
+    apply:null}]},
+ {id:'f1', kind:'표기', cls:'fmt', code:'F-01', where:'성별 칸 · 3·11·21번', cur:'남 / 남자 / M',
+  desc:'같은 뜻인데 세 가지로 적혀 있습니다. 컴퓨터는 이 셋을 <b>서로 다른 값</b>으로 셉니다.',
+  opts:[
+   {label:"'남자'와 'M'을 모두 '남'으로 통일하기", verdict:'good',
+    note:'맞습니다. 통일하지 않으면 성별이 2가지가 아니라 4가지로 세어집니다. 설문을 만들 때 <b>선택형 문항</b>으로 냈다면 처음부터 생기지 않았을 문제예요.',
+    apply:(rows)=>rows.forEach(r=>{ if(r.gender==='남자'||r.gender==='M') r.gender='남'; })},
+   {label:"'M'이 적힌 응답만 지우기", verdict:'bad',
+    note:'자료를 잃게 됩니다. 표기만 다를 뿐 멀쩡한 응답이에요. 지우지 말고 고쳐야 합니다.',
+    apply:null},
+   {label:'그대로 두기', verdict:'bad',
+    note:'안 됩니다. 막대그래프에 "남", "남자", "M" 막대가 따로 서서 결과를 읽을 수 없게 됩니다.',
+    apply:null}]},
+ {id:'f2', kind:'표기', cls:'fmt', code:'F-02', where:'통학 수단 칸 · 8번', cur:'걸어서',
+  desc:'다른 학생들은 모두 "도보"라고 적었는데 8번만 "걸어서"라고 적었습니다.',
+  opts:[
+   {label:"'걸어서'를 '도보'로 고치기", verdict:'good',
+    note:'맞습니다. 뜻이 같은 표현은 하나로 모읍니다. 이렇게 값의 형식을 맞추는 일을 <b>데이터 정제</b>라고 해요.',
+    apply:(rows)=>rows.forEach(r=>{ if(r.commute==='걸어서') r.commute='도보'; })},
+   {label:'새로운 통학 수단으로 따로 두기', verdict:'bad',
+    note:'같은 뜻이므로 나누면 안 됩니다. 도보 인원이 실제보다 적게 세어집니다.',
+    apply:null},
+   {label:'8번 응답을 지우기', verdict:'bad',
+    note:'한 글자 고치면 될 일로 응답 하나를 통째로 버리게 됩니다.',
+    apply:null}]},
+ {id:'d1', kind:'중복', cls:'dup', code:'D-01', where:'29번 행 (1번과 동일)', cur:'김서준 · 163 · 7 · 2.5',
+  desc:'1번 학생이 설문에 두 번 응답했습니다. 모든 칸이 똑같습니다.',
+  opts:[
+   {label:'나중에 들어온 29번 행 지우기', verdict:'good',
+    note:'맞습니다. 중복을 남기면 한 사람의 의견이 두 번 반영되어 결과가 그 사람 쪽으로 치우칩니다.',
+    apply:(rows)=>drop(rows,29)},
+   {label:'두 행 모두 남기기', verdict:'bad',
+    note:'안 됩니다. 조사 인원이 28명인데 29건이 됩니다. 김서준 학생의 응답만 두 배로 세어져요.',
+    apply:null},
+   {label:'두 행 모두 지우기', verdict:'bad',
+    note:'1번 학생의 응답까지 사라집니다. 중복은 <b>하나만</b> 남깁니다.',
+    apply:null}]},
+ {id:'m4', kind:'결측', cls:'miss', code:'M-04', where:'학급 일지 · 6월 지각 학생 수', cur:'(기록 없음)',
+  desc:'6월에는 기록을 빠뜨렸습니다. 5월은 7명, 7월은 5명입니다.',
+  opts:[
+   {label:'앞뒤 달의 가운데 값(6)으로 채우기', verdict:'good',
+    note:'좋습니다. 시간 순서가 있는 자료는 앞뒤 값 사이를 이어 짐작할 수 있어요. 이것을 <b>보간</b>이라고 합니다.',
+    apply:(rows,late)=>{const r=late.find(x=>x.m==='6월'); if(r) r.v=6;}},
+   {label:'0으로 채우기', verdict:'bad',
+    note:'안 됩니다. 0은 "6월에 지각한 학생이 한 명도 없었다"는 뜻이 됩니다. 기록을 안 한 것과 다릅니다.',
+    apply:null},
+   {label:'그대로 두기', verdict:'bad',
+    note:'꺾은선그래프에서 6월 자리가 끊깁니다. 시간 자료는 중간이 비면 추세를 읽기 어렵습니다.',
+    apply:null}]}
+];
+
+/* ============================================================
+   3. 상태
+   ============================================================ */
+const KEY='ourclass-datalab-v1';
+const state={step:1,max:1,q:null,method:null,anon:false,loaded:false,fixes:{},
+  ds:'survey',v1:'lunch',v2:'count',chart:null,drawnOK:{},quiz:{},concl:'',checks:{},showTable:false};
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const s=localStorage.getItem(KEY); if(s) Object.assign(state,JSON.parse(s)); }catch(e){} }
+
+function cleanData(){
+  const rows=RAW_SURVEY.map(r=>({...r}));
+  const late=RAW_LATE.map(r=>({...r}));
+  ISSUES.forEach(iss=>{
+    const c=state.fixes[iss.id];
+    if(c==null) return;
+    const opt=iss.opts[c];
+    if(opt&&opt.apply) opt.apply(rows,late);
+  });
+  return {rows,late};
+}
+const fixedCount=()=>ISSUES.filter(i=>{const c=state.fixes[i.id]; return c!=null && i.opts[c].verdict!=='bad';}).length;
+const allFixed=()=>fixedCount()===ISSUES.length;
+
+/* ============================================================
+   4. 유틸
+   ============================================================ */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fmt(v){ if(v==null||isNaN(v)) return '–'; const r=Math.round(v*100)/100; return String(r); }
+function mean(xs){return xs.length? xs.reduce((a,b)=>a+b,0)/xs.length:0;}
+function median(xs){const a=[...xs].sort((x,y)=>x-y); const n=a.length; if(!n) return 0; return n%2? a[(n-1)/2] : (a[n/2-1]+a[n/2])/2;}
+function mode(xs){const m={}; let best=null,bc=0; xs.forEach(v=>{m[v]=(m[v]||0)+1; if(m[v]>bc){bc=m[v];best=v;}}); return {value:best,count:bc};}
+function nums(rows,k){return rows.map(r=>r[k]).filter(v=>typeof v==='number'&&!isNaN(v));}
+function cats(rows,k,order){
+  const c={}; rows.forEach(r=>{const v=r[k]; if(v==null) return; c[v]=(c[v]||0)+1;});
+  const keys=[...(order||[]).filter(k2=>c[k2]!=null), ...Object.keys(c).filter(k2=>!(order||[]).includes(k2))];
+  return {labels:keys, values:keys.map(k2=>c[k2])};
+}
+
+/* ============================================================
+   5. 표
+   ============================================================ */
+function surveyTable(rows,opts){
+  opts=opts||{};
+  const flagged=opts.flag;
+  let h='<table><thead><tr>'+COLS.map(c=>`<th class="${c[0]==='no'||c[0]==='name'?'l':''}">${esc(c[1])}</th>`).join('')+'</tr></thead><tbody>';
+  rows.forEach(r=>{
+    const dup=flagged&&r.no===29;
+    h+=`<tr class="${dup?'flag-dup':''}">`;
+    COLS.forEach(c=>{
+      const k=c[0]; let v=r[k]; let cls=(k==='no'||k==='height'||k==='sleep'||k==='phone')?'num':'';
+      if(k==='name'&&state.anon) v='학생'+String(r.no).padStart(2,'0');
+      if(flagged){
+        if(v===null){ cls+=' flag-miss'; }
+        else if(k==='height'&&!okH(v)) cls+=' flag-out';
+        else if(k==='sleep'&&!okS(v)) cls+=' flag-out';
+        else if(k==='phone'&&!okP(v)) cls+=' flag-out';
+        else if(k==='gender'&&v!=='남'&&v!=='여') cls+=' flag-fmt';
+        else if(k==='commute'&&!VARS.survey.commute.order.includes(v)) cls+=' flag-fmt';
+      }
+      const align=(k==='no'||k==='name')?' l':'';
+      h+=`<td class="${cls}${align}">${v===null?'(빈칸)':esc(v)}</td>`;
+    });
+    h+='</tr>';
+  });
+  return h+'</tbody></table>';
+}
+function lateTable(late){
+  return '<table><thead><tr><th class="l">월</th><th>지각 학생 수(명)</th></tr></thead><tbody>'+
+    late.map(r=>`<tr><td class="l">${esc(r.m)}</td><td class="num${r.v===null?' flag-miss':''}">${r.v===null?'(기록 없음)':r.v}</td></tr>`).join('')+
+    '</tbody></table>';
+}
+
+/* ============================================================
+   6. 그래프 (SVG)
+   ============================================================ */
+const W=680,H=380;
+const SER=['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)','var(--s6)'];
+function svg(inner){return `<svg viewBox="0 0 ${W} ${H}" role="img" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;}
+function scale0(max){
+  if(!(max>0)) return {max:1,step:.25};
+  const raw=max/4, mag=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/mag;
+  const step=(n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*mag;
+  return {max:Math.ceil(max/step)*step, step};
+}
+function scaleAB(mn,mx){
+  if(mn===mx){mx=mn+1;}
+  const raw=(mx-mn)/4, mag=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/mag;
+  const step=(n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*mag;
+  return {min:Math.floor(mn/step)*step, max:Math.ceil(mx/step)*step, step};
+}
+function barPath(x,y,w,h,r){
+  r=Math.max(0,Math.min(r,w/2,h));
+  return `M${x},${y+h} L${x},${y+r} Q${x},${y} ${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} L${x+w},${y+h} Z`;
+}
+function gridY(L,T,pw,ph,sc,min){
+  min=min||0; let g='';
+  for(let v=min;v<=sc.max+1e-9;v+=sc.step){
+    const y=T+ph-((v-min)/(sc.max-min))*ph;
+    g+=`<line x1="${L}" y1="${y.toFixed(1)}" x2="${L+pw}" y2="${y.toFixed(1)}" style="stroke:var(--line)" stroke-width="1"/>`;
+    g+=`<text x="${L-9}" y="${(y+4).toFixed(1)}" text-anchor="end" class="ax">${fmt(v)}</text>`;
+  }
+  return g;
+}
+function xLabels(L,T,ph,slot,labels){
+  const every=Math.ceil(labels.length/14)||1; let g='';
+  labels.forEach((lb,i)=>{
+    if(i%every) return;
+    const s=String(lb).length>6?String(lb).slice(0,5)+'…':lb;
+    g+=`<text x="${(L+slot*i+slot/2).toFixed(1)}" y="${T+ph+21}" text-anchor="middle" class="ax">${esc(s)}</text>`;
+  });
+  return g;
+}
+function axisText(L,T,ph,xl,yl){
+  return `<text x="${L}" y="${H-12}" class="axl">${esc(xl)}</text>`+
+         `<text x="6" y="${T-9}" class="axl">${esc(yl)}</text>`+
+         `<line x1="${L}" y1="${T+ph}" x2="${W-24}" y2="${T+ph}" style="stroke:var(--line-strong)" stroke-width="1"/>`;
+}
+
+function chartBar(d){
+  const L=64,R=24,T=34,B=66, pw=W-L-R, ph=H-T-B;
+  const mn=Math.min(0,...d.values), sc=scale0(Math.max(...d.values,0));
+  let g=gridY(L,T,pw,ph,sc,mn<0?-sc.step:0);
+  const base=mn<0?-sc.step:0, span=sc.max-base;
+  const n=d.values.length, slot=pw/n, bw=Math.max(5,Math.min(58,slot-(slot>18?10:3)));
+  d.values.forEach((v,i)=>{
+    const x=L+slot*i+(slot-bw)/2;
+    const zero=T+ph-((0-base)/span)*ph;
+    const y=T+ph-((v-base)/span)*ph;
+    const h=Math.abs(zero-y);
+    g+=`<path d="${barPath(x,Math.min(y,zero),bw,h,4)}" style="fill:${d.colors?d.colors[i]:SER[0]}" data-tip="${esc(d.labels[i])} · ${fmt(v)}${esc(d.unit||'')}"/>`;
+    if(n<=9) g+=`<text x="${(x+bw/2).toFixed(1)}" y="${(Math.min(y,zero)-7).toFixed(1)}" text-anchor="middle" class="val">${fmt(v)}</text>`;
+  });
+  g+=xLabels(L,T,ph,slot,d.labels)+axisText(L,T,ph,d.xLabel,d.yLabel);
+  return svg(g);
+}
+function chartPie(d){
+  const cx=210,cy=196,r=128;
+  const total=d.values.reduce((a,b)=>a+b,0);
+  if(total<=0) return null;
+  let a0=-Math.PI/2,g='';
+  const items=d.labels.map((l,i)=>({l,v:d.values[i],c:SER[i%SER.length]}));
+  items.forEach((it,i)=>{
+    const a1=a0+(it.v/total)*Math.PI*2;
+    const big=(a1-a0)>Math.PI?1:0;
+    const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    const pct=Math.round(it.v/total*1000)/10;
+    g+=`<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 ${big} 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" style="fill:${it.c};stroke:var(--surface)" stroke-width="2" data-tip="${esc(it.l)} · ${fmt(it.v)}${esc(d.unit||'')} (${pct}%)"/>`;
+    a0=a1;
+  });
+  const lx=400; let ly=76;
+  items.forEach(it=>{
+    const pct=Math.round(it.v/total*1000)/10;
+    g+=`<rect x="${lx}" y="${ly-10}" width="13" height="13" rx="3" style="fill:${it.c}"/>`;
+    g+=`<text x="${lx+21}" y="${ly}" class="lg">${esc(it.l)}</text>`;
+    g+=`<text x="${W-24}" y="${ly}" text-anchor="end" class="val">${fmt(it.v)}${esc(d.unit||'')} · ${pct}%</text>`;
+    ly+=30;
+  });
+  g+=`<text x="${lx}" y="44" class="axl">${esc(d.yLabel)} (전체 ${fmt(total)}${esc(d.unit||'')})</text>`;
+  return svg(g);
+}
+function chartHist(d){
+  const L=64,R=24,T=34,B=66, pw=W-L-R, ph=H-T-B;
+  const bw=d.bin||1, mn=Math.floor(Math.min(...d.raw)/bw)*bw, mx=Math.ceil(Math.max(...d.raw)/bw)*bw;
+  const nb=Math.max(1,Math.round((mx-mn)/bw));
+  const counts=new Array(nb).fill(0);
+  d.raw.forEach(v=>{ let i=Math.floor((v-mn)/bw); if(i>=nb) i=nb-1; if(i<0) i=0; counts[i]++; });
+  const sc=scale0(Math.max(...counts));
+  let g=gridY(L,T,pw,ph,sc,0);
+  const slot=pw/nb, w=slot-2;
+  counts.forEach((c,i)=>{
+    const x=L+slot*i+1, h=(c/sc.max)*ph, y=T+ph-h;
+    g+=`<path d="${barPath(x,y,w,h,4)}" style="fill:${SER[0]}" data-tip="${fmt(mn+i*bw)}~${fmt(mn+(i+1)*bw)}${esc(d.xUnit||'')} · ${c}명"/>`;
+    if(nb<=12&&c>0) g+=`<text x="${(x+w/2).toFixed(1)}" y="${(y-7).toFixed(1)}" text-anchor="middle" class="val">${c}</text>`;
+  });
+  const labels=counts.map((_,i)=>fmt(mn+i*bw));
+  g+=xLabels(L,T,ph,slot,labels)+axisText(L,T,ph,d.xLabel+' (구간 '+fmt(bw)+esc(d.xUnit||'')+')','학생 수(명)');
+  return svg(g);
+}
+function chartLine(d){
+  const L=64,R=24,T=34,B=66, pw=W-L-R, ph=H-T-B;
+  const mnv=Math.min(...d.values), mxv=Math.max(...d.values);
+  const sc=scaleAB(Math.min(0,mnv),mxv);
+  let g=gridY(L,T,pw,ph,{max:sc.max,step:sc.step},sc.min);
+  const n=d.values.length, slot=pw/n;
+  const pts=d.values.map((v,i)=>[L+slot*i+slot/2, T+ph-((v-sc.min)/(sc.max-sc.min))*ph]);
+  g+=`<path d="M${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L')} L${pts[n-1][0].toFixed(1)},${T+ph} L${pts[0][0].toFixed(1)},${T+ph} Z" style="fill:${SER[0]};opacity:.12"/>`;
+  g+=`<path d="M${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L')}" style="fill:none;stroke:${SER[0]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p,i)=>{
+    const last=i===n-1;
+    g+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${last?6:4.5}" style="fill:${SER[0]};stroke:var(--surface)" stroke-width="2" data-tip="${esc(d.labels[i])} · ${fmt(d.values[i])}${esc(d.unit||'')}"/>`;
+    g+=`<text x="${p[0].toFixed(1)}" y="${(p[1]-13).toFixed(1)}" text-anchor="middle" class="val">${fmt(d.values[i])}</text>`;
+  });
+  g+=xLabels(L,T,ph,slot,d.labels)+axisText(L,T,ph,d.xLabel,d.yLabel);
+  return svg(g);
+}
+function chartScatter(d){
+  const L=64,R=24,T=34,B=66, pw=W-L-R, ph=H-T-B;
+  const xs=d.points.map(p=>p[0]), ys=d.points.map(p=>p[1]);
+  const sx=scaleAB(Math.min(...xs),Math.max(...xs)), sy=scaleAB(Math.min(...ys),Math.max(...ys));
+  let g=gridY(L,T,pw,ph,{max:sy.max,step:sy.step},sy.min);
+  for(let v=sx.min;v<=sx.max+1e-9;v+=sx.step){
+    const x=L+((v-sx.min)/(sx.max-sx.min))*pw;
+    g+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" style="stroke:var(--line)" stroke-width="1"/>`;
+    g+=`<text x="${x.toFixed(1)}" y="${T+ph+21}" text-anchor="middle" class="ax">${fmt(v)}</text>`;
+  }
+  d.points.forEach(p=>{
+    const x=L+((p[0]-sx.min)/(sx.max-sx.min))*pw, y=T+ph-((p[1]-sy.min)/(sy.max-sy.min))*ph;
+    g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5" style="fill:${SER[0]};stroke:var(--surface);opacity:.92" stroke-width="2" data-tip="${esc(d.xLabel)} ${fmt(p[0])} · ${esc(d.yLabel)} ${fmt(p[1])}"/>`;
+  });
+  g+=axisText(L,T,ph,d.xLabel,d.yLabel);
+  return svg(g);
+}
+
+/* ============================================================
+   7. 시각화 준비 · 적절성 판정
+   ============================================================ */
+const CHARTS=[['bar','막대그래프'],['pie','원그래프'],['hist','히스토그램'],['line','꺾은선그래프'],['scatter','산점도']];
+const SUIT={
+ 'cat-count':{
+  bar:['◎','알맞습니다. 항목별 <b>개수를 길이로 비교</b>하는 데 막대그래프가 가장 읽기 쉽습니다.'],
+  pie:['◎','알맞습니다. 전체를 100%로 보고 <b>차지하는 비율</b>을 볼 때 원그래프를 씁니다. 항목이 6개를 넘으면 조각이 너무 얇아져요.'],
+  hist:['✕','알맞지 않습니다. 히스토그램은 <b>숫자를 구간으로 묶을 때</b> 쓰는 그래프예요. 급식 이름은 구간으로 묶을 수 없습니다.'],
+  line:['✕','알맞지 않습니다. 꺾은선은 <b>시간에 따른 변화</b>를 볼 때 씁니다. 항목 사이를 선으로 이으면 "돈가스에서 카레로 변했다"는 엉뚱한 뜻이 됩니다.'],
+  scatter:['✕','알맞지 않습니다. 산점도는 <b>숫자 자료 두 개</b>의 관계를 볼 때 씁니다.']},
+ 'cat-num':{
+  bar:['◎','알맞습니다. 집단별 <b>평균을 막대 길이로 비교</b>할 수 있습니다. 평균만 보면 각자의 차이는 보이지 않는다는 점도 기억하세요.'],
+  pie:['✕','알맞지 않습니다. 원그래프는 <b>합이 전체가 되는 값</b>만 그릴 수 있어요. 평균들을 더해도 전체가 되지 않습니다.'],
+  hist:['✕','알맞지 않습니다. 히스토그램에는 가로축이 <b>숫자</b>여야 합니다.'],
+  line:['✕','알맞지 않습니다. 성별·급식은 순서가 없으므로 선으로 이을 수 없습니다.'],
+  scatter:['✕','알맞지 않습니다. 가로축이 숫자가 아닙니다.']},
+ 'num-count':{
+  bar:['△','그릴 수는 있지만 읽기 어렵습니다. 값이 하나씩 다 막대가 되어 <b>분포 모양</b>이 보이지 않아요. 숫자 자료는 구간으로 묶는 히스토그램이 낫습니다.'],
+  pie:['✕','알맞지 않습니다. 조각이 너무 잘게 쪼개져 아무것도 읽을 수 없습니다.'],
+  hist:['◎','알맞습니다. 숫자 자료를 <b>구간으로 묶어</b> 어디에 많이 모여 있는지(분포)를 봅니다.'],
+  line:['✕','알맞지 않습니다. 이 자료에는 시간 순서가 없습니다.'],
+  scatter:['✕','알맞지 않습니다. 세로축에도 숫자 자료를 골라야 산점도를 그릴 수 있습니다.']},
+ 'num-num':{
+  bar:['✕','알맞지 않습니다. 가로축에 나눌 항목이 없습니다.'],
+  pie:['✕','알맞지 않습니다. 전체를 나눌 수 있는 자료가 아닙니다.'],
+  hist:['✕','알맞지 않습니다. 히스토그램은 숫자 자료 <b>하나</b>의 분포를 봅니다. 세로축을 "개수 세기"로 바꿔 보세요.'],
+  line:['✕','알맞지 않습니다. 학생 번호 순서는 시간 순서가 아닙니다.'],
+  scatter:['◎','알맞습니다. 점 하나가 학생 한 명이에요. 점들이 <b>오른쪽 아래로 흐르면 반비례</b>, 오른쪽 위로 흐르면 비례 관계를 의심해 볼 수 있습니다.']},
+ 'time-num':{
+  bar:['△','그릴 수 있습니다. 다만 <b>이어지는 변화</b>는 꺾은선이 더 잘 보여 줍니다.'],
+  pie:['✕','알맞지 않습니다. 월별 지각 인원을 더해 전체로 보는 것은 뜻이 없습니다.'],
+  hist:['✕','알맞지 않습니다. 월은 구간으로 묶을 자료가 아닙니다.'],
+  line:['◎','알맞습니다. <b>시간 순서</b>가 있는 자료의 변화와 추세를 읽는 데 꺾은선그래프가 가장 알맞습니다.'],
+  scatter:['✕','알맞지 않습니다. 가로축이 숫자가 아닙니다.']}
+};
+
+function prep(){
+  const {rows,late}=cleanData();
+  if(state.ds==='late'){
+    const labels=late.map(r=>r.m), values=late.map(r=>r.v===null?0:r.v);
+    return {kind:'time-num',labels,values,raw:values,unit:'명',xUnit:'명',bin:2,
+      xLabel:'월',yLabel:'지각 학생 수(명)',rowsN:late.length};
+  }
+  const v1=state.v1,v2=state.v2,d1=VARS.survey[v1];
+  if(d1.type==='cat'){
+    const c=cats(rows,v1,d1.order);
+    if(v2==='count') return {kind:'cat-count',labels:c.labels,values:c.values,unit:'명',
+      xLabel:d1.label,yLabel:'학생 수(명)',rowsN:rows.length};
+    const d2=VARS.survey[v2];
+    const values=c.labels.map(l=>{
+      const xs=rows.filter(r=>r[v1]===l).map(r=>r[v2]).filter(v=>typeof v==='number');
+      return Math.round(mean(xs)*10)/10;});
+    return {kind:'cat-num',labels:c.labels,values,unit:d2.unit,
+      xLabel:d1.label,yLabel:'평균 '+d2.label+'('+d2.unit+')',rowsN:rows.length};
+  }
+  if(v2==='count'){
+    const raw=nums(rows,v1), by={};
+    raw.forEach(v=>by[v]=(by[v]||0)+1);
+    const ks=Object.keys(by).map(Number).sort((a,b)=>a-b);
+    return {kind:'num-count',raw,labels:ks.map(String),values:ks.map(v=>by[v]),unit:'명',xUnit:d1.unit,bin:d1.bin,
+      xLabel:d1.label+'('+d1.unit+')',yLabel:'학생 수(명)',rowsN:rows.length};
+  }
+  const d2=VARS.survey[v2];
+  const points=rows.filter(r=>typeof r[v1]==='number'&&typeof r[v2]==='number').map(r=>[r[v1],r[v2]]);
+  return {kind:'num-num',points,unit:d2.unit,
+    xLabel:d1.label+'('+d1.unit+')',yLabel:d2.label+'('+d2.unit+')',rowsN:points.length};
+}
+function renderChart(c,d){
+  if(c==='bar'||c==='line'){
+    if(!d.labels||!d.labels.length) return {msg:'가로축에 나눌 항목이 없어 그릴 수 없습니다. 세로축을 "개수 세기"로 바꾸거나 가로축에 범주형 자료를 골라 보세요.'};
+    return {html:(c==='bar'?chartBar(d):chartLine(d))};
+  }
+  if(c==='pie'){
+    if(!d.labels||!d.labels.length) return {msg:'원그래프로 나눌 항목이 없습니다.'};
+    if(d.values.some(v=>v<0)) return {msg:'음수가 섞여 있어 원그래프를 그릴 수 없습니다.'};
+    const h=chartPie(d);
+    return h?{html:h}:{msg:'값의 합이 0이라 원그래프를 그릴 수 없습니다.'};
+  }
+  if(c==='hist'){
+    if(!d.raw||!d.raw.length) return {msg:'히스토그램은 숫자 자료를 구간으로 묶어 그립니다. 가로축에 숫자 자료를 골라 주세요.'};
+    return {html:chartHist(d)};
+  }
+  if(c==='scatter'){
+    if(!d.points||!d.points.length) return {msg:'산점도는 숫자 자료가 두 개 필요합니다. 가로축과 세로축에 모두 숫자 자료를 골라 주세요.'};
+    return {html:chartScatter(d)};
+  }
+  return {msg:''};
+}
+
+/* ============================================================
+   8. 화면 그리기
+   ============================================================ */
+const STEPS=[[1,'수집'],[2,'정제'],[3,'시각화'],[4,'해석']];
+function unlocked(){
+  let m=1;
+  if(state.q&&state.method&&state.anon&&state.loaded) m=2;
+  if(m>=2&&allFixed()) m=3;
+  if(m>=3&&okDrawn()>=2) m=4;
+  return m;
+}
+function okDrawn(){return Object.keys(state.drawnOK).length;}
+
+function renderRail(){
+  const max=unlocked();
+  $('rail').innerHTML=STEPS.map(([n,t])=>
+    `<button class="chip" data-step="${n}" ${n>max?'disabled':''} ${state.step===n?'aria-current="true"':''} data-done="${n<max?1:0}"><span class="n">${n<max?'✓':n}</span>${t}</button>`
+  ).join('');
+  $('rail').querySelectorAll('.chip').forEach(b=>b.onclick=()=>go(+b.dataset.step));
+  $('progbar').style.width=((max-1)/3*100)+'%';
+}
+function go(n){
+  state.step=n; save();
+  STEPS.forEach(([s])=>{ $('step'+s).hidden = s!==n; });
+  renderRail();
+  if(n===3) renderViz();
+  if(n===4) renderInterpret();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- STEP 1 ---------- */
+function renderStep1(){
+  $('qOpts').innerHTML=QUESTIONS.map(q=>
+    `<button class="opt opt-q" data-q="${q.id}" aria-pressed="${state.q===q.id}">${esc(q.t)}</button>`).join('');
+  $('qOpts').querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{
+    state.q=b.dataset.q; const q=QUESTIONS.find(x=>x.id===state.q);
+    if(q.id==='late'){state.ds='late';state.v1='m';state.v2='v';}
+    else{state.ds='survey'; state.v1=q.v; state.v2=(q.id==='phone')?'sleep':'count';}
+    save(); renderStep1(); renderRail();
+  });
+  const q=QUESTIONS.find(x=>x.id===state.q);
+  const fq=$('fbQ'); fq.hidden=!q;
+  if(q) fq.innerHTML='<b>확인</b><span>'+q.fb+'</span>';
+  $('num-q').dataset.done=state.q?1:0;
+
+  $('mOpts').innerHTML=METHODS.map(m=>
+    `<button class="opt" data-m="${m.id}" aria-pressed="${state.method===m.id}"><b>${esc(m.t)}</b><small>${esc(m.d)}</small></button>`).join('');
+  $('mOpts').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{state.method=b.dataset.m;save();renderStep1();renderRail();});
+  const m=METHODS.find(x=>x.id===state.method);
+  const fm=$('fbM'); fm.hidden=!m;
+  if(m){ fm.className='fb '+m.cls; fm.innerHTML='<b>'+(m.cls==='good'?'알맞음':'다시 생각')+'</b><span>'+m.fb+'</span>'; }
+  $('num-m').dataset.done=state.method?1:0;
+
+  $('anonNote').textContent=state.anon?'이름이 번호로 바뀌었습니다.':'아직 이름이 그대로 들어 있습니다.';
+  $('btnAnon').disabled=state.anon;
+  $('btnAnon').textContent=state.anon?'처리 완료':'이름을 번호로 바꾸기';
+  const fp=$('fbP'); fp.hidden=!state.anon;
+  fp.innerHTML='<b>처리됨</b><span>이름을 학생01·학생02처럼 바꾸었습니다. 이렇게 누구인지 알 수 없게 만드는 것을 <b>비식별 처리</b>라고 합니다. 번호도 학급 명렬표와 맞추면 알아볼 수 있으니, 공개할 자료라면 번호까지 섞어야 해요.</span>';
+  $('num-p').dataset.done=state.anon?1:0;
+  $('num-c').dataset.done=state.loaded?1:0;
+
+  const rows=state.loaded?RAW_SURVEY:RAW_SURVEY.slice(0,6);
+  $('rawTbl').innerHTML=surveyTable(rows,{flag:false});
+  $('rawCount').textContent=state.loaded?'29행 × 8필드':'미리보기 6행';
+  $('loadNote').textContent=state.loaded?'설문 29건 + 학급 일지 6건을 불러왔습니다.':'미리보기 6행만 보이는 중';
+  $('btnLoad').disabled=state.loaded;
+
+  const ready=state.q&&state.method&&state.anon&&state.loaded;
+  $('go2').disabled=!ready;
+  $('go2Note').textContent=ready?'준비 끝! 이제 데이터를 정제합니다.':'1~4번을 모두 끝내면 다음 단계가 열립니다.';
+}
+
+/* ---------- STEP 2 ---------- */
+function renderStep2(){
+  $('issueLog').innerHTML=ISSUES.map(iss=>{
+    const c=state.fixes[iss.id];
+    const chosen=c!=null?iss.opts[c]:null;
+    const ok=chosen&&chosen.verdict!=='bad';
+    return `<li data-i="${iss.id}">
+      <div class="log-h">
+        <span class="done-dot" data-ok="${ok?1:0}"></span>
+        <span class="code">${iss.code}</span>
+        <span class="kind k-${iss.cls}">${iss.kind}</span>
+        <span class="what">${esc(iss.where)}</span>
+        <span class="where">현재 값 <span class="val">${esc(iss.cur)}</span></span>
+      </div>
+      <p class="desc">${iss.desc}</p>
+      <div class="opts">${iss.opts.map((o,i)=>
+        `<button class="opt" data-pick="${i}" aria-pressed="${c===i}">${o.label}</button>`).join('')}</div>
+      ${chosen?`<p class="fb ${chosen.verdict==='good'?'good':chosen.verdict==='ok'?'warn':'bad'}"><b>${chosen.verdict==='good'?'좋은 선택':chosen.verdict==='ok'?'가능한 선택':'다시 생각'}</b><span>${chosen.note}</span></p>`:''}
+    </li>`;
+  }).join('');
+  $('issueLog').querySelectorAll('li').forEach(li=>{
+    li.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
+      state.fixes[li.dataset.i]=+b.dataset.pick; save(); renderStep2(); renderRail();
+    });
+  });
+  const n=fixedCount();
+  $('fixCount').textContent=n+' / '+ISSUES.length+' 처리';
+  $('go3').disabled=n<ISSUES.length;
+  $('go3Note').textContent=n<ISSUES.length
+    ? (ISSUES.length-n)+'건이 남았습니다. "다시 생각" 표시가 있으면 아직 해결되지 않은 거예요.'
+    : '정제 완료! 이제 그래프를 그려 봅니다.';
+  if(!$('cleanTbl').hidden) renderCleanTable();
+}
+function renderCleanTable(){
+  const {rows,late}=cleanData();
+  $('cleanTbl').innerHTML=
+    `<div class="sec-h" style="margin-top:20px"><h3>정제 후 자료</h3><span class="tag">${rows.length}행 × 8필드</span></div>
+     <div class="tblbox tall">${surveyTable(rows,{flag:true})}</div>
+     <div class="sec-h" style="margin-top:18px"><h3>학급 일지</h3><span class="tag">${late.length}개월</span></div>
+     <div class="tblbox">${lateTable(late)}</div>`;
+}
+
+/* ---------- STEP 3 ---------- */
+function fillSelects(){
+  const ds=state.ds;
+  if(ds==='late'){
+    state.v1='m'; state.v2='v';
+    $('selV1').innerHTML='<option value="m">월 (시간)</option>';
+    $('selV2').innerHTML='<option value="v">지각 학생 수(명)</option>';
+  }else{
+    const vs=VARS.survey;
+    if(!vs[state.v1]) state.v1='lunch';
+    $('selV1').innerHTML=Object.keys(vs).map(k=>
+      `<option value="${k}" ${state.v1===k?'selected':''}>${vs[k].label}${vs[k].unit?'('+vs[k].unit+')':''} · ${vs[k].type==='cat'?'범주형':'수치형'}</option>`).join('');
+    const numKeys=Object.keys(vs).filter(k=>vs[k].type==='num'&&k!==state.v1);
+    const opts=['<option value="count">개수 세기 (도수)</option>']
+      .concat(numKeys.map(k=>`<option value="${k}">${vs[k].label}의 평균 또는 값</option>`));
+    if(state.v2!=='count'&&!numKeys.includes(state.v2)) state.v2='count';
+    $('selV2').innerHTML=opts.join('');
+    $('selV2').value=state.v2;
+  }
+  $('selDs').value=ds;
+}
+function renderViz(){
+  fillSelects();
+  const d=prep(), suit=SUIT[d.kind]||{};
+  $('charts').innerHTML=CHARTS.map(([k,t])=>{
+    const s=suit[k]?suit[k][0]:'✕';
+    return `<button class="ctype" data-c="${k}" aria-pressed="${state.chart===k}"><span class="m">${s}</span>${t}</button>`;
+  }).join('');
+  $('charts').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{state.chart=b.dataset.c;save();renderViz();});
+  const fb=$('fbViz');
+  if(state.chart&&suit[state.chart]){
+    const [mark,txt]=suit[state.chart];
+    fb.hidden=false;
+    fb.className='fb '+(mark==='◎'?'good':mark==='△'?'warn':'bad');
+    fb.innerHTML='<b>'+(mark==='◎'?'알맞음':mark==='△'?'쓸 수 있음':'알맞지 않음')+'</b><span>'+txt+'</span>';
+  }else fb.hidden=true;
+
+  const plot=$('plot');
+  if(!state.chart){ plot.innerHTML='<div class="empty">그래프 종류를 고르면 여기에 그려집니다.</div>'; }
+  else{
+    const r=renderChart(state.chart,d);
+    const cname=CHARTS.find(c=>c[0]===state.chart)[1];
+    const title=state.chart==='scatter'? cname+' · '+d.xLabel+'과(와) '+d.yLabel+'의 관계'
+      : state.chart==='hist'? cname+' · '+d.xLabel+'의 분포'
+      : cname+' · '+d.xLabel+'에 따른 '+d.yLabel;
+    plot.innerHTML='<div class="chart-title">'+esc(title)+'</div>'+(r.html||'<div class="empty">'+esc(r.msg)+'</div>');
+    bindTips(plot);
+    if(r.html&&suit[state.chart][0]==='◎'){
+      state.drawnOK[state.ds+'|'+state.v1+'|'+state.v2+'|'+state.chart]=title; save();
+    }
+  }
+  if(state.showTable) renderVizTable(d); else $('vizTbl').hidden=true;
+  $('go4').disabled=okDrawn()<2;
+  $('go4Note').innerHTML=okDrawn()>=2
+    ? '좋습니다. 이제 그래프를 문장으로 옮길 차례입니다.'
+    : '알맞은 그래프(◎)를 두 가지 이상 그려 보면 다음 단계가 열립니다. <b id="okCount">'+okDrawn()+'</b>/2';
+  renderRail();
+}
+function renderVizTable(d){
+  const box=$('vizTbl'); box.hidden=false;
+  if(d.points){
+    box.innerHTML='<div class="tblbox tall"><table><thead><tr><th class="l">'+esc(d.xLabel)+'</th><th>'+esc(d.yLabel)+'</th></tr></thead><tbody>'+
+      d.points.map(p=>`<tr><td class="l num">${fmt(p[0])}</td><td class="num">${fmt(p[1])}</td></tr>`).join('')+'</tbody></table></div>';
+    return;
+  }
+  const total=d.values.reduce((a,b)=>a+b,0);
+  box.innerHTML='<div class="tblbox tall"><table><thead><tr><th class="l">'+esc(d.xLabel)+'</th><th>'+esc(d.yLabel)+'</th>'+
+    (d.kind==='cat-count'?'<th>비율</th>':'')+'</tr></thead><tbody>'+
+    d.labels.map((l,i)=>`<tr><td class="l">${esc(l)}</td><td class="num">${fmt(d.values[i])}</td>`+
+      (d.kind==='cat-count'?`<td class="num">${Math.round(d.values[i]/total*1000)/10}%</td>`:'')+'</tr>').join('')+
+    '</tbody></table></div>';
+}
+
+/* ---------- STEP 4 ---------- */
+const r1=v=>Math.round(v*10)/10;
+function renderInterpret(){
+  const {rows,late}=cleanData();
+  const keys=[['height','키','cm'],['sleep','수면 시간','시간'],['phone','스마트폰 이용 시간','시간']];
+  let h='<table><thead><tr><th class="l">항목</th><th>평균</th><th>중앙값</th><th>최빈값</th><th>최솟값</th><th>최댓값</th><th>범위</th></tr></thead><tbody>';
+  keys.forEach(([k,lb,u])=>{
+    const xs=nums(rows,k); const md=mode(xs);
+    h+=`<tr><td class="l">${lb}(${u})</td><td class="num">${fmt(r1(mean(xs)))}</td><td class="num">${fmt(median(xs))}</td>`+
+       `<td class="num">${fmt(md.value)} <span style="color:var(--ink-3)">(${md.count}명)</span></td>`+
+       `<td class="num">${fmt(Math.min(...xs))}</td><td class="num">${fmt(Math.max(...xs))}</td>`+
+       `<td class="num">${fmt(r1(Math.max(...xs)-Math.min(...xs)))}</td></tr>`;
+  });
+  const lv=late.map(r=>r.v===null?0:r.v);
+  h+=`<tr><td class="l">월별 지각 학생 수(명)</td><td class="num">${fmt(r1(mean(lv)))}</td><td class="num">${fmt(median(lv))}</td>`+
+     `<td class="num">–</td><td class="num">${fmt(Math.min(...lv))}</td><td class="num">${fmt(Math.max(...lv))}</td><td class="num">${fmt(Math.max(...lv)-Math.min(...lv))}</td></tr>`;
+  $('statTbl').innerHTML=h+'</tbody></table>';
+
+  const ph=nums(rows,'phone'), pm=r1(mean(ph)), pmd=median(ph);
+  const hmode=mode(nums(rows,'height')).value;
+  const imputed=(hmode%1!==0)?' 키의 최빈값이 소수점으로 나왔다면, 빈칸을 <b>평균으로 채운 값</b>이 두 번 들어갔기 때문입니다. 어떻게 정제했는지가 요약값까지 바꾼다는 뜻이에요.':'';
+  const lunchC=cats(rows,'lunch',VARS.survey.lunch.order);
+  const topI=lunchC.values.indexOf(Math.max(...lunchC.values));
+  $('statNote').innerHTML=
+    `분석에 쓴 학생은 <b>${rows.length}명</b>입니다. 가장 많이 나온 급식은 <b>${esc(lunchC.labels[topI])}</b>(${lunchC.values[topI]}명, ${Math.round(lunchC.values[topI]/rows.length*1000)/10}%)이고, 이렇게 범주형 자료에서 가장 많은 값을 <b>최빈값</b>이라고 합니다. `+
+    (Math.abs(pm-pmd)>=0.3
+      ? `스마트폰 이용 시간은 평균 ${fmt(pm)}시간이지만 중앙값은 ${fmt(pmd)}시간입니다. 아주 오래 쓰는 몇 명이 평균을 끌어올렸기 때문이에요. 이럴 때는 <b>중앙값</b>이 "한가운데 친구"를 더 잘 나타냅니다.`
+      : `스마트폰 이용 시간은 평균 ${fmt(pm)}시간, 중앙값 ${fmt(pmd)}시간으로 거의 같습니다. 치우친 값이 적다는 뜻이에요.`)+imputed;
+
+  const sleepM=r1(mean(nums(rows,'sleep')));
+  const QZ=[
+    {q:'정제를 마친 뒤 분석에 사용한 학생은 모두 몇 명인가요?',a:rows.length+'명',
+     d:[(rows.length+1)+'명',(rows.length-2)+'명'],pos:1,
+     why:'원자료 29건에서 중복 1건을 지우고, 응답을 통째로 뺀 만큼 줄어듭니다.'},
+    {q:'우리 반의 평균 수면 시간은 약 몇 시간인가요?',a:fmt(sleepM)+'시간',
+     d:[fmt(r1(sleepM+1.4))+'시간',fmt(r1(sleepM-1.1))+'시간'],pos:2,
+     why:'모든 학생의 수면 시간을 더해 학생 수로 나눈 값입니다.'},
+    {q:'우리 반에서 가장 많이 고른 급식은 무엇인가요?',a:lunchC.labels[topI],
+     d:lunchC.labels.filter((_,i)=>i!==topI).slice(0,2),pos:0,
+     why:'막대그래프에서 막대가 가장 긴 항목, 곧 최빈값을 찾으면 됩니다.'},
+    {q:'3월부터 9월까지 지각한 학생 수는 어떻게 변했나요?',a:'점점 줄어들었다',
+     d:['점점 늘어났다','늘었다 줄었다를 반복했다'],pos:2,
+     why:'꺾은선이 왼쪽에서 오른쪽으로 계속 내려갑니다. 이런 흐름을 추세라고 합니다.'}
+  ];
+  $('quiz').innerHTML=QZ.map((z,i)=>{
+    const opts=[...z.d]; opts.splice(z.pos,0,z.a);
+    const picked=state.quiz[i];
+    return `<li data-q="${i}"><p class="qq">${esc(z.q)}</p>
+      <div class="opts">${opts.map(o=>
+        `<button class="opt" data-o="${esc(o)}" ${picked!=null?`data-state="${o===z.a?'right':(o===picked?'wrong':'')}"`:''}>${esc(o)}</button>`).join('')}</div>
+      ${picked!=null?`<p class="fb ${picked===z.a?'good':'bad'}"><b>${picked===z.a?'정답':'오답'}</b><span>${esc(z.why)}</span></p>`:''}</li>`;
+  }).join('');
+  $('quiz').querySelectorAll('li').forEach(li=>{
+    li.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+      state.quiz[li.dataset.q]=b.dataset.o; save(); renderInterpret();
+    });
+  });
+  const right=QZ.filter((z,i)=>state.quiz[i]===z.a).length;
+  $('quizScore').textContent=right+' / '+QZ.length;
+
+  const q=QUESTIONS.find(x=>x.id===state.q);
+  $('qEcho').innerHTML=q?'내 조사 질문 — <b>'+esc(q.t)+'</b>':'조사 질문을 먼저 골라 주세요.';
+  $('concl').value=state.concl||'';
+  document.querySelectorAll('[data-chk]').forEach(c=>{c.checked=!!state.checks[c.dataset.chk];});
+  window.__QZ=QZ; window.__right=right;
+}
+const FRAMES=[
+ '그래프를 보면 ○○이 가장 많았다.',
+ '우리 반 ○○의 평균은 △△이다.',
+ '○○할수록 △△하는 것으로 보인다.',
+ '다만 이 조사는 우리 반 28명만 조사한 것이라 중학생 전체가 그렇다고 말하기는 어렵다.'
+];
+function renderFrames(){
+  $('frames').innerHTML=FRAMES.map((f,i)=>`<button class="frame" data-f="${i}">+ ${esc(f)}</button>`).join('');
+  $('frames').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{
+    const t=$('concl'); const add=FRAMES[+b.dataset.f];
+    t.value=(t.value?t.value.replace(/\s*$/,'')+' ':'')+add;
+    state.concl=t.value; save(); t.focus();
+  });
+}
+function buildReport(){
+  const {rows,late}=cleanData();
+  const q=QUESTIONS.find(x=>x.id===state.q);
+  const m=METHODS.find(x=>x.id===state.method);
+  const drawn=Object.values(state.drawnOK);
+  const sleepM=r1(mean(nums(rows,'sleep')));
+  const lunchC=cats(rows,'lunch',VARS.survey.lunch.order);
+  const topI=lunchC.values.indexOf(Math.max(...lunchC.values));
+  const chk=Object.keys(state.checks).filter(k=>state.checks[k]).length;
+  return [
+   '■ 조사 질문   : '+(q?q.t:'(선택 안 함)'),
+   '■ 조사 방법   : '+(m?m.t:'(선택 안 함)')+' / 개인정보: '+(state.anon?'이름을 번호로 비식별 처리':'처리 안 함'),
+   '■ 자료        : 원자료 '+RAW_SURVEY.length+'건 → 정제 후 '+rows.length+'건 (학급 일지 '+late.length+'개월)',
+   '■ 정제 내역   : 결측 4건 · 이상치 3건 · 표기 불일치 2건 · 중복 1건 = 총 '+fixedCount()+'건 처리',
+   '■ 그린 그래프 : '+(drawn.length?drawn.join(' / '):'(없음)'),
+   '■ 요약값      : 평균 수면 '+fmt(sleepM)+'시간 · 최빈 급식 '+lunchC.labels[topI]+'('+lunchC.values[topI]+'명)'+
+     ' · 월별 지각 '+late[0].v+'명 → '+late[late.length-1].v+'명',
+   '■ 그래프 읽기 : '+(window.__right||0)+' / 4 정답',
+   '■ 결론        : '+(state.concl||'(작성 전)'),
+   '■ 점검        : '+chk+' / 3 항목 확인',
+   '■ 한계        : 1학년 3반 '+rows.length+'명만 조사한 결과이므로 학교 전체·중학생 전체로 넓혀 말할 수 없다.'
+  ].join('\n');
+}
+
+/* ============================================================
+   9. 툴팁
+   ============================================================ */
+const tip=$('tip');
+function bindTips(root){
+  root.querySelectorAll('[data-tip]').forEach(el=>{
+    el.style.cursor='pointer';
+    const show=e=>{
+      tip.textContent=el.getAttribute('data-tip'); tip.hidden=false;
+      const r=el.getBoundingClientRect();
+      const x=(e&&e.clientX)||r.left+r.width/2, y=r.top+ (r.height>40? 10 : 0);
+      tip.style.left=Math.max(60,Math.min(window.innerWidth-60,x))+'px';
+      tip.style.top=Math.max(34,y)+'px';
+    };
+    el.addEventListener('mouseenter',show);
+    el.addEventListener('mousemove',show);
+    el.addEventListener('mouseleave',()=>{tip.hidden=true;});
+    el.addEventListener('touchstart',e=>{show(e.touches[0]);},{passive:true});
+  });
+}
+document.addEventListener('scroll',()=>{tip.hidden=true;},{passive:true});
+
+/* ============================================================
+   10. 시작
+   ============================================================ */
+function init(){
+  load();
+  if(!state.drawnOK) state.drawnOK={};
+  renderStep1(); renderStep2(); renderFrames();
+  $('btnAnon').onclick=()=>{state.anon=true;save();renderStep1();renderRail();};
+  $('btnLoad').onclick=()=>{state.loaded=true;save();renderStep1();renderRail();};
+  $('go2').onclick=()=>go(2);
+  $('go3').onclick=()=>go(3);
+  $('go4').onclick=()=>go(4);
+  $('btnShowClean').onclick=()=>{
+    const b=$('cleanTbl'); b.hidden=!b.hidden;
+    $('btnShowClean').textContent=b.hidden?'정제된 표 보기':'정제된 표 숨기기';
+    if(!b.hidden) renderCleanTable();
+  };
+  $('selDs').onchange=e=>{state.ds=e.target.value; state.chart=null; save(); renderViz();};
+  $('selV1').onchange=e=>{state.v1=e.target.value; save(); renderViz();};
+  $('selV2').onchange=e=>{state.v2=e.target.value; save(); renderViz();};
+  $('btnTable').onclick=()=>{
+    state.showTable=!state.showTable; save();
+    $('btnTable').textContent=state.showTable?'표 숨기기':'표로 보기';
+    renderViz();
+  };
+  $('concl').addEventListener('input',e=>{state.concl=e.target.value;save();});
+  document.querySelectorAll('[data-chk]').forEach(c=>c.addEventListener('change',()=>{
+    state.checks[c.dataset.chk]=c.checked; save();
+  }));
+  $('btnReport').onclick=()=>{
+    $('reportBody').textContent=buildReport();
+    $('report').hidden=false; $('btnCopy').hidden=false;
+    $('report').scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+  $('btnCopy').onclick=async()=>{
+    const t=$('reportBody').textContent;
+    try{ await navigator.clipboard.writeText(t); $('btnCopy').textContent='복사됨'; }
+    catch(e){
+      const r=document.createRange(); r.selectNodeContents($('reportBody'));
+      const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      $('btnCopy').textContent='전체 선택됨 · Ctrl+C';
+    }
+    setTimeout(()=>{$('btnCopy').textContent='보고서 복사';},2200);
+  };
+  $('btnReset').onclick=()=>{
+    if(!confirm('진행 상황을 모두 지우고 처음부터 다시 시작할까요?')) return;
+    try{localStorage.removeItem(KEY);}catch(e){}
+    location.reload();
+  };
+  $('btnTable').textContent=state.showTable?'표 숨기기':'표로 보기';
+  go(Math.min(state.step,unlocked()));
+}
+init();
+})();
+</script>
